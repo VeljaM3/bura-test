@@ -1,4 +1,4 @@
-// GitHub Sync Manager - ENHANCED VERSION + NodeConfig Sync
+// GitHub Sync Manager - CORRECTED NodeConfig Sync
 
 showLogConsole()
 
@@ -40,7 +40,6 @@ diffCheckbox.addValueChangeListener({ event ->
 })
 v.options.addComponent(diffCheckbox)
 
-// Novi checkbox za Actions
 def syncActionsEnabled = true
 def actionsCheckbox = new com.vaadin.ui.CheckBox("Sync Action Definitions")
 actionsCheckbox.setValue(true)
@@ -49,7 +48,6 @@ actionsCheckbox.addValueChangeListener({ event ->
 })
 v.options.addComponent(actionsCheckbox)
 
-// Novi checkbox za NodeConfigs
 def syncNodeConfigsEnabled = true
 def nodeConfigsCheckbox = new com.vaadin.ui.CheckBox("Sync Node Configs")
 nodeConfigsCheckbox.setValue(true)
@@ -66,7 +64,6 @@ v.result.setMargin(true)
 def uploadToGitHub = { githubPath, content, commitMessage ->
     def apiUrl = "https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${githubPath}"
     
-    // Provera SHA
     def existingSha = null
     def existingContent = null
     
@@ -85,7 +82,6 @@ def uploadToGitHub = { githubPath, content, commitMessage ->
         log("${githubPath} - New file")
     }
     
-    // Diff Detection
     if (diffDetectionEnabled && existingContent) {
         def localBase64 = content.bytes.encodeBase64().toString().replaceAll("\\s", "")
         def remoteBase64 = existingContent.replaceAll("\\s", "")
@@ -95,7 +91,6 @@ def uploadToGitHub = { githubPath, content, commitMessage ->
         }
     }
     
-    // Upload
     def payload = [
         message: commitMessage,
         content: content.bytes.encodeBase64().toString(),
@@ -169,79 +164,149 @@ def syncActions = { stats ->
     }
 }
 
-// Sync NodeConfigs
+// Sync NodeConfigs - FIXED VERSION
 def syncNodeConfigs = { stats ->
     v.result.labelCustom("", [])
     v.result.labelCustom("## Syncing Node Configs...", [style: "h3", color: "blue"])
     
-    def allNodeConfigs = repo.find()
-        .ofType("NODE_CONFIG")
-        .limit(9999)
-        .execute()
-    
-    def myNodeConfigs = allNodeConfigs.findAll { it.path?.contains("/VeljkoTest/") }
-    
-    v.result.labelCustom("Found ${myNodeConfigs.size()} node configs", [style: "bold"])
-    
-    myNodeConfigs.each { nodeConfig ->
-        try {
-            def configName = nodeConfig.name
-            log("Processing node config: ${configName}")
-            
-            // Ekstraktuj sve properties iz NodeConfig-a
-            def configData = [
-                name: nodeConfig.name,
-                path: nodeConfig.path,
-                definitionName: nodeConfig.definitionName,
-                properties: [:]
-            ]
-            
-            // Uzmi sve properties
+    try {
+        // Dohvati NodeConfig folder
+        def nodeConfigFolder = repo.get("/Configuration/Apps/VeljkoTest/NodeConfig")
+        
+        if (!nodeConfigFolder) {
+            v.result.labelCustom("⚠️ NodeConfig folder not found", [color: "gray"])
+            return
+        }
+        
+        // Uzmi sve subnodove (ACTIVITY_VT_FILM_GENRE, VT_FILM, itd.)
+        def nodeDefinitions = nodeConfigFolder.subNodes?.data ?: []
+        
+        v.result.labelCustom("Found ${nodeDefinitions.size()} node definitions", [style: "bold"])
+        
+        nodeDefinitions.each { nodeDef ->
             try {
-                def properties = nodeConfig.properties
-                if (properties && properties.data) {
-                    properties.data.each { prop ->
-                        // Uzmi ime i vrednost property-ja
-                        def propName = prop.name
-                        def propValue = null
-                        
-                        try {
-                            propValue = nodeConfig[propName]
-                        } catch (Exception e) {
-                            propValue = "N/A"
+                def nodeName = nodeDef.name
+                log("Processing node config: ${nodeName}")
+                
+                // Dohvati pun objekat
+                def fullNodeDef = repo.get(nodeDef.path)
+                
+                // Ekstraktuj sve podatke
+                def configData = [
+                    name: fullNodeDef.name,
+                    path: fullNodeDef.path,
+                    definitionName: fullNodeDef.definitionName,
+                    properties: [:],
+                    dataTemplates: [],
+                    scripts: [],
+                    subnodes: []
+                ]
+                
+                // Dohvati Properties folder
+                try {
+                    def propsFolder = repo.get("${fullNodeDef.path}/Properties")
+                    if (propsFolder && propsFolder.subNodes?.data) {
+                        propsFolder.subNodes.data.each { prop ->
+                            def propDetails = repo.get(prop.path)
+                            configData.properties[prop.name] = [
+                                name: propDetails.name,
+                                path: propDetails.path,
+                                definitionName: propDetails.definitionName
+                            ]
+                            
+                            // Pokušaj dohvatiti properties od property-ja
+                            try {
+                                if (propDetails.properties?.data) {
+                                    propDetails.properties.data.each { p ->
+                                        try {
+                                            configData.properties[prop.name][p.name] = propDetails[p.name]
+                                        } catch (Exception e) {
+                                            // Skip ako ne može da se pristupi
+                                        }
+                                    }
+                                }
+                            } catch (Exception e) {
+                                log("Could not extract properties for ${prop.name}")
+                            }
                         }
-                        
-                        configData.properties[propName] = propValue
                     }
+                } catch (Exception e) {
+                    log("No properties found for ${nodeName}")
                 }
+                
+                // Dohvati Scripts folder
+                try {
+                    def scriptsFolder = repo.get("${fullNodeDef.path}/Scripts")
+                    if (scriptsFolder && scriptsFolder.subNodes?.data) {
+                        scriptsFolder.subNodes.data.each { scriptFolder ->
+                            def scriptFolderDetails = repo.get(scriptFolder.path)
+                            if (scriptFolderDetails.subNodes?.data) {
+                                scriptFolderDetails.subNodes.data.each { scriptFile ->
+                                    try {
+                                        def scriptPath = scriptFile.path
+                                        def scriptContent = bo.getBinaryAsString(scriptPath)
+                                        if (scriptContent) {
+                                            configData.scripts << [
+                                                name: scriptFile.name,
+                                                type: scriptFolder.name,
+                                                content: scriptContent
+                                            ]
+                                        }
+                                    } catch (Exception e) {
+                                        log("Could not read script: ${scriptFile.name}")
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                    log("No scripts found for ${nodeName}")
+                }
+                
+                // Dohvati DataTemplates
+                try {
+                    def dataTemplatesFolder = repo.get("${fullNodeDef.path}/DataTemplates")
+                    if (dataTemplatesFolder && dataTemplatesFolder.subNodes?.data) {
+                        dataTemplatesFolder.subNodes.data.each { template ->
+                            configData.dataTemplates << template.name
+                        }
+                    }
+                } catch (Exception e) {
+                    log("No data templates found for ${nodeName}")
+                }
+                
+                // Konvertuj u JSON
+                def jsonContent = groovy.json.JsonOutput.prettyPrint(
+                    groovy.json.JsonOutput.toJson(configData)
+                )
+                
+                def githubPath = "nodeConfigs/${nodeName}.json"
+                def result = uploadToGitHub(githubPath, jsonContent, "Auto-sync: NodeConfig ${nodeName}")
+                
+                if (result.status == "unchanged") {
+                    v.result.labelCustom("⏭️ ${nodeName} - No changes", [color: "blue"])
+                    stats.unchangedCount++
+                } else if (result.code in [200, 201]) {
+                    def statusIcon = result.code == 201 ? "✨" : "✅"
+                    v.result.labelCustom("${statusIcon} ${nodeName} (${jsonContent.length()} chars)", [color: "green"])
+                    stats.successCount++
+                } else {
+                    v.result.labelCustom("❌ ${nodeName} - HTTP ${result.code}", [color: "red"])
+                    stats.failCount++
+                }
+                
             } catch (Exception e) {
-                log("Could not extract properties for ${configName}: ${e.message}")
-            }
-            
-            // Konvertuj u JSON
-            def jsonContent = groovy.json.JsonOutput.prettyPrint(
-                groovy.json.JsonOutput.toJson(configData)
-            )
-            
-            def githubPath = "nodeConfigs/${configName}.json"
-            def result = uploadToGitHub(githubPath, jsonContent, "Auto-sync: NodeConfig ${configName}")
-            
-            if (result.status == "unchanged") {
-                v.result.labelCustom("⏭️ ${configName} - No changes", [color: "blue"])
-                stats.unchangedCount++
-            } else if (result.code in [200, 201]) {
-                def statusIcon = result.code == 201 ? "✨" : "✅"
-                v.result.labelCustom("${statusIcon} ${configName} (${jsonContent.length()} chars)", [color: "green"])
-                stats.successCount++
-            } else {
-                v.result.labelCustom("❌ ${configName} - HTTP ${result.code}", [color: "red"])
+                v.result.labelCustom("❌ ${nodeDef.name} - ${e.message}", [color: "red"])
+                log("Error: ${e.message}")
+                e.printStackTrace()
                 stats.failCount++
             }
-            
-        } catch (Exception e) {
-            v.result.labelCustom("❌ ${nodeConfig.name} - ${e.message}", [color: "red"])
-            stats.failCount++
         }
+        
+    } catch (Exception e) {
+        v.result.labelCustom("❌ NodeConfig sync error: ${e.message}", [color: "red"])
+        e.printStackTrace()
+        stats.failCount++
     }
 }
 
@@ -261,21 +326,18 @@ def syncToGitHub = {
             failCount: 0
         ]
         
-        // Sync Actions
         if (syncActionsEnabled) {
             syncActions(stats)
         } else {
             v.result.labelCustom("⏭️ Actions sync disabled", [color: "gray"])
         }
         
-        // Sync NodeConfigs
         if (syncNodeConfigsEnabled) {
             syncNodeConfigs(stats)
         } else {
             v.result.labelCustom("⏭️ NodeConfigs sync disabled", [color: "gray"])
         }
         
-        // Enhanced Report
         v.result.labelCustom("", [])
         v.result.labelCustom("=== REZULTAT ===", [style: "h3", color: "blue"])
         v.result.labelCustom("✅ Uploadovano: ${stats.successCount}", [color: "green", style: "bold"])
@@ -283,7 +345,6 @@ def syncToGitHub = {
         v.result.labelCustom("⚠️ Preskoceno: ${stats.skipCount}", [color: "gray"])
         v.result.labelCustom("❌ Greske: ${stats.failCount}", [color: "red", style: "bold"])
         
-        // Timestamp
         if (stats.successCount > 0) {
             def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss")
             v.result.labelCustom("", [])
