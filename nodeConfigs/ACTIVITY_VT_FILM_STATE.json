@@ -1,7 +1,6 @@
 {
     "name": "ACTIVITY_VT_FILM_STATE",
     "path": "/Configuration/Apps/VeljkoTest/NodeConfig/ACTIVITY_VT_FILM_STATE",
-    "definitionName": "ENC_NODE_DEFINITION",
     "properties": {
         "BusinessBehavior": {
             "name": "BusinessBehavior",
@@ -109,5 +108,9 @@
     ],
     "scripts": [
         
-    ]
+    ],
+    "subnodes": {
+        
+    },
+    "definitionName": "ENC_NODE_DEFINITION"
 }
