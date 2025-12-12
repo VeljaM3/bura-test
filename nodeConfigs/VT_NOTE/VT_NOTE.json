@@ -1,0 +1,87 @@
+{
+    "name": "VT_NOTE",
+    "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_NOTE",
+    "properties": {
+        "date": {
+            "name": "date",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_NOTE/Properties/date",
+            "scripts": {
+                
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "veljkotest.vt_note.date.description",
+            "propertyInputType": "date_picker",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "date",
+            "propertyType": "Date",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[f77da373-e875-492e-a965-e2d7525b61b4], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761134531284,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=22,DAY_OF_YEAR=295,DAY_OF_WEEK=4,DAY_OF_WEEK_IN_MONTH=4,AM_PM=1,HOUR=2,HOUR_OF_DAY=14,MINUTE=2,SECOND=11,MILLISECOND=284,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "veljko.nasev",
+            "multiple": "false",
+            "errorMessage": "dev.date.error",
+            "label": "veljkotest.vt_note.date.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761134531284,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=22,DAY_OF_YEAR=295,DAY_OF_WEEK=4,DAY_OF_WEEK_IN_MONTH=4,AM_PM=1,HOUR=2,HOUR_OF_DAY=14,MINUTE=2,SECOND=11,MILLISECOND=284,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        },
+        "text": {
+            "name": "text",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_NOTE/Properties/text",
+            "scripts": {
+                
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "veljkotest.vt_note.tex.description",
+            "propertyInputType": "input_text",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "text",
+            "propertyType": "String",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[09c68e6b-6e3a-4d42-9527-47fe81a0cb5f], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761134545526,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=22,DAY_OF_YEAR=295,DAY_OF_WEEK=4,DAY_OF_WEEK_IN_MONTH=4,AM_PM=1,HOUR=2,HOUR_OF_DAY=14,MINUTE=2,SECOND=25,MILLISECOND=526,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "veljko.nasev",
+            "multiple": "false",
+            "errorMessage": "dev.tex.error",
+            "label": "veljkotest.vt_note.tex.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761134545526,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=22,DAY_OF_YEAR=295,DAY_OF_WEEK=4,DAY_OF_WEEK_IN_MONTH=4,AM_PM=1,HOUR=2,HOUR_OF_DAY=14,MINUTE=2,SECOND=25,MILLISECOND=526,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        }
+    },
+    "dataTemplates": [
+        
+    ],
+    "subnodes": {
+        
+    },
+    "definitionName": "ENC_NODE_DEFINITION"
+}
