@@ -1,0 +1,405 @@
+{
+    "name": "VT_FILM",
+    "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM",
+    "properties": {
+        "actors": {
+            "name": "actors",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Properties/actors",
+            "scripts": {
+                
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "veljkotest.vt_film.actors.description",
+            "propertyInputType": "input_text",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "actors",
+            "propertyType": "String",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[ed8d3b5d-6870-43ca-9836-e536300d6451], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761039666139,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=41,SECOND=6,MILLISECOND=139,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "veljko.nasev",
+            "multiple": "true",
+            "errorMessage": "dev.actors.error",
+            "label": "veljkotest.vt_film.actors.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761039666139,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=41,SECOND=6,MILLISECOND=139,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        },
+        "datePublished": {
+            "name": "datePublished",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Properties/datePublished",
+            "scripts": {
+                
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "veljkotest.vt_film.datum.description",
+            "propertyInputType": "date_picker",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "datePublished",
+            "propertyType": "Date",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[1a16cef1-2012-4076-8e2b-0939663d2d90], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761039503392,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=38,SECOND=23,MILLISECOND=392,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "veljko.nasev",
+            "multiple": "false",
+            "errorMessage": "dev.datum.error",
+            "label": "veljkotest.vt_film.datum.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761039503392,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=38,SECOND=23,MILLISECOND=392,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        },
+        "dateWatched": {
+            "name": "dateWatched",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Properties/dateWatched",
+            "scripts": {
+                
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "veljkotest.vt_film.datewatched.description",
+            "propertyInputType": "date_picker",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "dateWatched",
+            "propertyType": "Date",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[4715e3d0-6aa3-45fc-934e-8387c3d0f8eb], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761039591093,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=39,SECOND=51,MILLISECOND=93,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "veljko.nasev",
+            "multiple": "false",
+            "errorMessage": "dev.datewatched.error",
+            "label": "veljkotest.vt_film.datewatched.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761039591093,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=39,SECOND=51,MILLISECOND=93,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        },
+        "genre": {
+            "name": "genre",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Properties/genre",
+            "scripts": {
+                "LOOKUP": [
+                    "script.groovy"
+                ]
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "veljkotest.vt_film.genre.description",
+            "propertyInputType": "custom_input",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "genre",
+            "propertyType": "Reference",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[e6a74ac6-1fe0-47e6-bb36-4e87e6b09118], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761040084903,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=48,SECOND=4,MILLISECOND=903,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "veljko.nasev",
+            "multiple": "false",
+            "errorMessage": "dev.genre.error",
+            "label": "veljkotest.vt_film.genre.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761040084903,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=48,SECOND=4,MILLISECOND=903,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        },
+        "id": {
+            "name": "id",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Properties/id",
+            "scripts": {
+                
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "veljkotest.vt_film.id.description",
+            "propertyInputType": "input_number",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "id",
+            "propertyType": "Long",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[4bd50b5d-1f6d-4776-a249-ab1fce9e2dba], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761051111405,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=1,HOUR=2,HOUR_OF_DAY=14,MINUTE=51,SECOND=51,MILLISECOND=405,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "veljko.nasev",
+            "multiple": "false",
+            "errorMessage": "dev.id.error",
+            "label": "veljkotest.vt_film.id.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761051111405,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=1,HOUR=2,HOUR_OF_DAY=14,MINUTE=51,SECOND=51,MILLISECOND=405,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        },
+        "rating": {
+            "name": "rating",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Properties/rating",
+            "scripts": {
+                "LOOKUP": [
+                    "script.groovy"
+                ]
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "veljkotest.vt_film.rating.description",
+            "propertyInputType": "custom_input",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "rating",
+            "propertyType": "Reference",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[4a38e797-7810-48b2-9263-7cc47b8782f2], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761040105526,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=48,SECOND=25,MILLISECOND=526,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "veljko.nasev",
+            "multiple": "false",
+            "errorMessage": "dev.rating.error",
+            "label": "veljkotest.vt_film.rating.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761040105526,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=48,SECOND=25,MILLISECOND=526,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        },
+        "subGenre": {
+            "name": "subGenre",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Properties/subGenre",
+            "scripts": {
+                
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "veljkotest.vt_film.subgenre.description",
+            "propertyInputType": "input_text",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "subGenre",
+            "propertyType": "String",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[7f0d52f6-038e-4c23-8b3f-095d93955183], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761039686594,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=41,SECOND=26,MILLISECOND=594,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "veljko.nasev",
+            "multiple": "true",
+            "errorMessage": "dev.subgenre.error",
+            "label": "veljkotest.vt_film.subgenre.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761039686594,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=41,SECOND=26,MILLISECOND=594,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        },
+        "tag": {
+            "name": "tag",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Properties/tag",
+            "scripts": {
+                
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "veljkotest.vt_film.tag.description",
+            "propertyInputType": "input_text",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "tag",
+            "propertyType": "String",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[3f77304d-1630-4157-aa9a-ab6c857ab2c5], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761039649532,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=40,SECOND=49,MILLISECOND=532,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "veljko.nasev",
+            "multiple": "true",
+            "errorMessage": "dev.tag.error",
+            "label": "veljkotest.vt_film.tag.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761039649532,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=40,SECOND=49,MILLISECOND=532,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        },
+        "title": {
+            "name": "title",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Properties/title",
+            "scripts": {
+                
+            },
+            "definitionName": "ENC_PROPERTY_DEFINITION",
+            "description": "name.of.the.node",
+            "propertyInputType": "input_text",
+            "mandatory": "false",
+            "onParentVersion": "VERSION",
+            "ecmPropertyName": "title",
+            "propertyType": "String",
+            "fixedValue": "false",
+            "nodeTypeCode": "EcmListTO [data=[ENC_PROPERTY_DEFINITION], sizeWithoutPaging=0]",
+            "fingerprint": "EcmListTO [data=[efcd7a10-d95c-4d1b-bf09-3e880fae4c63], sizeWithoutPaging=0]",
+            "defaultValues": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "activityTypeCodes": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "itemsOrigin": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "wide": "false",
+            "visibility": "true",
+            "renderingTags": "EcmListTO [data=[], sizeWithoutPaging=0]",
+            "created": "java.util.GregorianCalendar[time=1761039432731,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=0,HOUR=11,HOUR_OF_DAY=11,MINUTE=37,SECOND=12,MILLISECOND=731,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "lastModifiedBy": "admin",
+            "multiple": "false",
+            "errorMessage": "dev.naslov.error",
+            "label": "veljkotest.vt_film.title.label",
+            "onCopy": "COPY",
+            "ignoredOnRegistration": "false",
+            "createdBy": "veljko.nasev",
+            "orderOfGroup": "0",
+            "width": "0",
+            "lastModified": "java.util.GregorianCalendar[time=1761042529150,areFieldsSet=true,areAllFieldsSet=true,lenient=true,zone=sun.util.calendar.ZoneInfo[id=\"Europe/Podgorica\",offset=3600000,dstSavings=3600000,useDaylight=true,transitions=119,lastRule=java.util.SimpleTimeZone[id=Europe/Podgorica,offset=3600000,dstSavings=3600000,useDaylight=true,startYear=0,startMode=2,startMonth=2,startDay=-1,startDayOfWeek=1,startTime=3600000,startTimeMode=2,endMode=2,endMonth=9,endDay=-1,endDayOfWeek=1,endTime=3600000,endTimeMode=2]],firstDayOfWeek=2,minimalDaysInFirstWeek=4,ERA=1,YEAR=2025,MONTH=9,WEEK_OF_YEAR=43,WEEK_OF_MONTH=4,DAY_OF_MONTH=21,DAY_OF_YEAR=294,DAY_OF_WEEK=3,DAY_OF_WEEK_IN_MONTH=3,AM_PM=1,HOUR=0,HOUR_OF_DAY=12,MINUTE=28,SECOND=49,MILLISECOND=150,ZONE_OFFSET=3600000,DST_OFFSET=3600000]",
+            "expandRatio": "1",
+            "orderOfItem": "0",
+            "updateType": "user_entry"
+        }
+    },
+    "dataTemplates": [
+        
+    ],
+    "subnodes": {
+        "image": {
+            "name": "image",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Subnodes/image",
+            "properties": {
+                
+            },
+            "dataTemplates": [
+                
+            ],
+            "subnodes": {
+                
+            },
+            "definitionName": "ENC_SUBNODE_DEFINITION"
+        },
+        "notes": {
+            "name": "notes",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Subnodes/notes",
+            "properties": {
+                
+            },
+            "dataTemplates": [
+                
+            ],
+            "subnodes": {
+                
+            },
+            "definitionName": "ENC_SUBNODE_DEFINITION"
+        },
+        "subGenres": {
+            "name": "subGenres",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Subnodes/subGenres",
+            "properties": {
+                
+            },
+            "dataTemplates": [
+                
+            ],
+            "subnodes": {
+                
+            },
+            "definitionName": "ENC_SUBNODE_DEFINITION"
+        },
+        "tags": {
+            "name": "tags",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Subnodes/tags",
+            "properties": {
+                
+            },
+            "dataTemplates": [
+                
+            ],
+            "subnodes": {
+                
+            },
+            "definitionName": "ENC_SUBNODE_DEFINITION"
+        }
+    },
+    "definitionName": "ENC_NODE_DEFINITION"
+}
