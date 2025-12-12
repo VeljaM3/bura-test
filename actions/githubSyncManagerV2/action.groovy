@@ -1,4 +1,4 @@
-// GitHub Sync Manager - FIXED NodeConfig Access
+// GitHub Sync Manager - WITH SUBNODES
 
 showLogConsole()
 
@@ -10,7 +10,7 @@ def GITHUB_BRANCH = "main"
 
 v.addHeader("h1")
 v.h1.topTitle.labelCustom("GitHub Sync Manager - Enhanced", [style: "h1"])
-v.h1.masterTitle.labelCustom("Smart sync sa diff detection", [style: "h4"])
+v.h1.masterTitle.labelCustom("Smart sync sa diff detection + Subnodes", [style: "h4"])
 v.h1.build()
 
 v.addSection("options")
@@ -158,12 +158,119 @@ def syncActions = { stats ->
     }
 }
 
+// Helper funkcija za parsiranje jednog noda (koristi se i za parent i za subnode)
+def parseNodeStructure = { nodePath ->
+    def nodeData = [
+        name: nodePath.split("/").last(),
+        path: nodePath,
+        properties: [:],
+        dataTemplates: [],
+        scripts: [],
+        subnodes: [:]
+    ]
+    
+    // Dohvati osnovne info o nodu
+    try {
+        def nodeObj = repo.get(nodePath)
+        if (nodeObj) {
+            nodeData.definitionName = nodeObj.definitionName
+        }
+    } catch (Exception e) {
+        log("Could not get node object for ${nodePath}")
+    }
+    
+    // Properties
+    try {
+        def props = repo.find()
+            .onPath("${nodePath}/Properties")
+            .limit(999)
+            .execute()
+        
+        log("  Found ${props.size()} properties")
+        
+        props.each { prop ->
+            try {
+                def propDetails = repo.get(prop.path)
+                nodeData.properties[prop.name] = [
+                    name: propDetails.name,
+                    path: propDetails.path,
+                    definitionName: propDetails.definitionName
+                ]
+                
+                if (propDetails.properties?.data) {
+                    propDetails.properties.data.each { p ->
+                        try {
+                            def val = propDetails[p.name]
+                            if (val != null) {
+                                nodeData.properties[prop.name][p.name] = val.toString()
+                            }
+                        } catch (Exception e) {
+                            // Skip
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log("  Could not process property ${prop.name}")
+            }
+        }
+    } catch (Exception e) {
+        log("  No properties for ${nodePath}")
+    }
+    
+    // Scripts
+    try {
+        def scripts = repo.find()
+            .onPath("${nodePath}/Scripts")
+            .ofType("FILE")
+            .limit(999)
+            .execute()
+        
+        log("  Found ${scripts.size()} scripts")
+        
+        scripts.each { scriptFile ->
+            try {
+                def scriptPath = scriptFile.path
+                def scriptContent = bo.getBinaryAsString(scriptPath)
+                if (scriptContent) {
+                    nodeData.scripts << [
+                        name: scriptFile.name,
+                        path: scriptFile.path,
+                        parentFolder: scriptFile.parentPath.split("/").last(),
+                        content: scriptContent
+                    ]
+                }
+            } catch (Exception e) {
+                log("  Could not read script: ${scriptFile.name}")
+            }
+        }
+    } catch (Exception e) {
+        log("  No scripts for ${nodePath}")
+    }
+    
+    // DataTemplates
+    try {
+        def templates = repo.find()
+            .onPath("${nodePath}/DataTemplates")
+            .limit(999)
+            .execute()
+        
+        log("  Found ${templates.size()} data templates")
+        
+        templates.each { template ->
+            nodeData.dataTemplates << template.name
+        }
+    } catch (Exception e) {
+        log("  No data templates for ${nodePath}")
+    }
+    
+    return nodeData
+}
+
 def syncNodeConfigs = { stats ->
     v.result.labelCustom("", [])
     v.result.labelCustom("## Syncing Node Configs...", [style: "h3", color: "blue"])
     
     try {
-        // ISPRAVKA: Koristimo onPath() umesto underPath()
         def allNodesUnderConfig = repo.find()
             .onPath("/Configuration/Apps/VeljkoTest/NodeConfig")
             .limit(9999)
@@ -171,12 +278,10 @@ def syncNodeConfigs = { stats ->
         
         log("Found ${allNodesUnderConfig.size()} total items under NodeConfig")
         
-        // Filtriraj samo direktne child nodove (dubina 1 nivo)
+        // Filtriraj samo direktne child nodove
         def nodeDefinitions = allNodesUnderConfig.findAll { node ->
             def pathParts = node.path.split("/")
             def nodeConfigIndex = pathParts.findIndexOf { it == "NodeConfig" }
-            
-            // Proverava da li je node direktno ispod NodeConfig (NodeConfig/IME_NODA)
             def isDirectChild = (nodeConfigIndex >= 0 && pathParts.size() == nodeConfigIndex + 2)
             
             if (isDirectChild) {
@@ -199,100 +304,48 @@ def syncNodeConfigs = { stats ->
                 def nodeName = nodeDef.name
                 log("Processing node config: ${nodeName}")
                 
-                def configData = [
-                    name: nodeName,
-                    path: nodeDef.path,
-                    definitionName: nodeDef.definitionName,
-                    properties: [:],
-                    dataTemplates: [],
-                    scripts: []
-                ]
+                // Parsiraj osnovni node
+                def configData = parseNodeStructure(nodeDef.path)
                 
-                // Dohvati Properties
+                // Dohvati SUBNODES
                 try {
-                    def props = repo.find()
-                        .onPath("${nodeDef.path}/Properties")
+                    def subnodesPath = "${nodeDef.path}/Subnodes"
+                    def subnodesList = repo.find()
+                        .onPath(subnodesPath)
                         .limit(999)
                         .execute()
                     
-                    log("Found ${props.size()} properties for ${nodeName}")
+                    log("  Found ${subnodesList.size()} subnodes for ${nodeName}")
                     
-                    props.each { prop ->
+                    // Filtriraj samo direktne subnodove (ne i njihove subfolders)
+                    def directSubnodes = subnodesList.findAll { subnode ->
+                        def relativePath = subnode.path.replace("${subnodesPath}/", "")
+                        !relativePath.contains("/")
+                    }
+                    
+                    log("  Filtered to ${directSubnodes.size()} direct subnodes")
+                    
+                    directSubnodes.each { subnode ->
                         try {
-                            def propDetails = repo.get(prop.path)
-                            configData.properties[prop.name] = [
-                                name: propDetails.name,
-                                path: propDetails.path,
-                                definitionName: propDetails.definitionName
-                            ]
+                            def subnodeName = subnode.name
+                            log("    Processing subnode: ${subnodeName}")
                             
-                            // Pokušaj izvući i child properties/attributes
-                            if (propDetails.properties?.data) {
-                                propDetails.properties.data.each { p ->
-                                    try {
-                                        def val = propDetails[p.name]
-                                        if (val != null) {
-                                            configData.properties[prop.name][p.name] = val.toString()
-                                        }
-                                    } catch (Exception e) {
-                                        // Skip
-                                    }
-                                }
-                            }
+                            // Parsiraj subnode sa istom funkcijom
+                            def subnodeData = parseNodeStructure(subnode.path)
+                            
+                            // Dodaj u parent node
+                            configData.subnodes[subnodeName] = subnodeData
+                            
                         } catch (Exception e) {
-                            log("Could not process property ${prop.name}: ${e.message}")
+                            log("    Error processing subnode ${subnode.name}: ${e.message}")
                         }
                     }
+                    
                 } catch (Exception e) {
-                    log("No properties folder for ${nodeName}: ${e.message}")
+                    log("  No subnodes for ${nodeName}: ${e.message}")
                 }
                 
-                // Dohvati Scripts
-                try {
-                    def scripts = repo.find()
-                        .onPath("${nodeDef.path}/Scripts")
-                        .ofType("FILE")
-                        .limit(999)
-                        .execute()
-                    
-                    log("Found ${scripts.size()} scripts for ${nodeName}")
-                    
-                    scripts.each { scriptFile ->
-                        try {
-                            def scriptPath = scriptFile.path
-                            def scriptContent = bo.getBinaryAsString(scriptPath)
-                            if (scriptContent) {
-                                configData.scripts << [
-                                    name: scriptFile.name,
-                                    path: scriptFile.path,
-                                    parentFolder: scriptFile.parentPath.split("/").last(),
-                                    content: scriptContent
-                                ]
-                            }
-                        } catch (Exception e) {
-                            log("Could not read script: ${scriptFile.name} - ${e.message}")
-                        }
-                    }
-                } catch (Exception e) {
-                    log("No scripts folder for ${nodeName}: ${e.message}")
-                }
-                
-                // Dohvati DataTemplates
-                try {
-                    def templates = repo.find()
-                        .onPath("${nodeDef.path}/DataTemplates")
-                        .limit(999)
-                        .execute()
-                    
-                    log("Found ${templates.size()} data templates for ${nodeName}")
-                    
-                    templates.each { template ->
-                        configData.dataTemplates << template.name
-                    }
-                } catch (Exception e) {
-                    log("No data templates for ${nodeName}: ${e.message}")
-                }
-                
+                // Konvertuj u JSON
                 def jsonContent = groovy.json.JsonOutput.prettyPrint(
                     groovy.json.JsonOutput.toJson(configData)
                 )
@@ -305,7 +358,9 @@ def syncNodeConfigs = { stats ->
                     stats.unchangedCount++
                 } else if (result.code in [200, 201]) {
                     def statusIcon = result.code == 201 ? "✨" : "✅"
-                    v.result.labelCustom("${statusIcon} ${nodeName} (${jsonContent.length()} chars)", [color: "green"])
+                    def subnodeCount = configData.subnodes.size()
+                    def subnodeInfo = subnodeCount > 0 ? " + ${subnodeCount} subnodes" : ""
+                    v.result.labelCustom("${statusIcon} ${nodeName}${subnodeInfo} (${jsonContent.length()} chars)", [color: "green"])
                     stats.successCount++
                 } else {
                     v.result.labelCustom("❌ ${nodeName} - HTTP ${result.code}", [color: "red"])
