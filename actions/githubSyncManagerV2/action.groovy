@@ -1,4 +1,4 @@
-// GitHub Sync Manager - FOLDER STRUCTURE + Property Scripts
+// GitHub Sync Manager - Always-On Diff Detection
 
 showLogConsole()
 
@@ -8,9 +8,12 @@ def GITHUB_OWNER = "VeljaM3"
 def GITHUB_REPO = "bura-test"
 def GITHUB_BRANCH = "main"
 
+// Diff detection je UVEK uključen
+def diffDetectionEnabled = true
+
 v.addHeader("h1")
-v.h1.topTitle.labelCustom("GitHub Sync Manager - Enhanced", [style: "h1"])
-v.h1.masterTitle.labelCustom("Smart sync with folder structure", [style: "h4"])
+v.h1.topTitle.labelCustom("GitHub Sync Manager", [style: "h1"])
+v.h1.masterTitle.labelCustom("Smart sync sa automatskim diff detection", [style: "h4"])
 v.h1.build()
 
 v.addSection("options")
@@ -29,14 +32,6 @@ v.options.addComponent(branchCombo)
 
 v.options.labelCustom("", [])
 v.options.labelCustom("Sync Options:", [style: "bold"])
-
-def diffDetectionEnabled = true
-def diffCheckbox = new com.vaadin.ui.CheckBox("Enable diff detection (skip unchanged)")
-diffCheckbox.setValue(true)
-diffCheckbox.addValueChangeListener({ event ->
-    diffDetectionEnabled = event.value
-})
-v.options.addComponent(diffCheckbox)
 
 def syncActionsEnabled = true
 def actionsCheckbox = new com.vaadin.ui.CheckBox("Sync Action Definitions")
@@ -78,7 +73,8 @@ def uploadToGitHub = { githubPath, content, commitMessage ->
         log("${githubPath} - New file")
     }
     
-    if (diffDetectionEnabled && existingContent) {
+    // Diff detection UVEK AKTIVAN
+    if (existingContent) {
         def localBase64 = content.bytes.encodeBase64().toString().replaceAll("\\s", "")
         def remoteBase64 = existingContent.replaceAll("\\s", "")
         
@@ -158,7 +154,6 @@ def syncActions = { stats ->
     }
 }
 
-// Helper funkcija za parsiranje property sa skriptama
 def parsePropertyWithScripts = { propertyPath, nodeName, allScripts ->
     def propertyData = [
         name: propertyPath.split("/").last(),
@@ -170,7 +165,6 @@ def parsePropertyWithScripts = { propertyPath, nodeName, allScripts ->
         def propDetails = repo.get(propertyPath)
         propertyData.definitionName = propDetails.definitionName
         
-        // Uzmi osnovne atribute property-ja
         if (propDetails.properties?.data) {
             propDetails.properties.data.each { p ->
                 try {
@@ -187,7 +181,6 @@ def parsePropertyWithScripts = { propertyPath, nodeName, allScripts ->
         log("  Could not get property details for ${propertyPath}")
     }
     
-    // Dohvati skripte za ovaj property (LOOKUP, ONCHANGE, ONCREATE, VALIDATOR)
     def scriptTypes = ["LOOKUP", "ONCHANGE", "ONCREATE", "VALIDATOR"]
     
     scriptTypes.each { scriptType ->
@@ -208,7 +201,6 @@ def parsePropertyWithScripts = { propertyPath, nodeName, allScripts ->
                         if (scriptContent) {
                             def scriptName = scriptFile.name
                             
-                            // Dodaj u listu svih skripti za upload
                             allScripts << [
                                 nodeName: nodeName,
                                 propertyName: propertyData.name,
@@ -217,7 +209,6 @@ def parsePropertyWithScripts = { propertyPath, nodeName, allScripts ->
                                 content: scriptContent
                             ]
                             
-                            // Dodaj referencu u property data
                             if (!propertyData.scripts[scriptType]) {
                                 propertyData.scripts[scriptType] = []
                             }
@@ -236,7 +227,6 @@ def parsePropertyWithScripts = { propertyPath, nodeName, allScripts ->
     return propertyData
 }
 
-// Helper funkcija za parsiranje node strukture
 def parseNodeStructure = { nodePath, allScripts ->
     def nodeData = [
         name: nodePath.split("/").last(),
@@ -255,7 +245,6 @@ def parseNodeStructure = { nodePath, allScripts ->
         log("Could not get node object for ${nodePath}")
     }
     
-    // Properties sa skriptama
     try {
         def props = repo.find()
             .onPath("${nodePath}/Properties")
@@ -264,7 +253,6 @@ def parseNodeStructure = { nodePath, allScripts ->
         
         log("  Found ${props.size()} properties")
         
-        // Filtriraj samo direktne properties (ne i subfoldere)
         def directProps = props.findAll { prop ->
             def relativePath = prop.path.replace("${nodePath}/Properties/", "")
             !relativePath.contains("/")
@@ -284,7 +272,6 @@ def parseNodeStructure = { nodePath, allScripts ->
         log("  No properties for ${nodePath}")
     }
     
-    // DataTemplates
     try {
         def templates = repo.find()
             .onPath("${nodePath}/DataTemplates")
@@ -342,10 +329,8 @@ def syncNodeConfigs = { stats ->
                 
                 def allScripts = []
                 
-                // Parsiraj osnovni node
                 def configData = parseNodeStructure(nodeDef.path, allScripts)
                 
-                // Dohvati SUBNODES
                 try {
                     def subnodesPath = "${nodeDef.path}/Subnodes"
                     def subnodesList = repo.find()
@@ -379,7 +364,6 @@ def syncNodeConfigs = { stats ->
                     log("  No subnodes for ${nodeName}: ${e.message}")
                 }
                 
-                // Upload JSON metadata (bez script content)
                 def jsonContent = groovy.json.JsonOutput.prettyPrint(
                     groovy.json.JsonOutput.toJson(configData)
                 )
@@ -396,13 +380,11 @@ def syncNodeConfigs = { stats ->
                     nodeSuccessCount++
                 }
                 
-                // Upload scripts u folder strukturu
                 log("  Uploading ${allScripts.size()} scripts for ${nodeName}")
                 
                 allScripts.each { script ->
                     try {
                         def scriptGithubPath = "nodeConfigs/${script.nodeName}/Scripts/${script.scriptType}/${script.propertyName}_${script.scriptName}"
-
                         def scriptResult = uploadToGitHub(scriptGithubPath, script.content, "Auto-sync: ${script.nodeName} - ${script.propertyName} ${script.scriptType}")
                         
                         if (scriptResult.status == "unchanged") {
@@ -415,7 +397,6 @@ def syncNodeConfigs = { stats ->
                     }
                 }
                 
-                // Display result
                 if (nodeSuccessCount > 0) {
                     v.result.labelCustom("✅ ${nodeName} - ${nodeSuccessCount} files", [color: "green"])
                     stats.successCount += nodeSuccessCount
@@ -445,7 +426,7 @@ def syncToGitHub = {
     v.result.clear()
     v.result.labelCustom("=== Sinhronizacija ===", [style: "h3"])
     v.result.labelCustom("Branch: ${selectedBranch}", [style: "bold"])
-    v.result.labelCustom("Diff Detection: ${diffDetectionEnabled ? 'ON' : 'OFF'}", [style: "bold"])
+    v.result.labelCustom("Diff Detection: ON (auto)", [style: "bold", color: "green"])
     v.result.labelCustom("", [])
     
     try {
