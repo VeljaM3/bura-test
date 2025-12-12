@@ -1,7 +1,6 @@
 {
     "name": "VT_NOTE",
     "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_NOTE",
-    "definitionName": "ENC_NODE_DEFINITION",
     "properties": {
         "BusinessBehavior": {
             "name": "BusinessBehavior",
@@ -143,5 +142,9 @@
     ],
     "scripts": [
         
-    ]
+    ],
+    "subnodes": {
+        
+    },
+    "definitionName": "ENC_NODE_DEFINITION"
 }
