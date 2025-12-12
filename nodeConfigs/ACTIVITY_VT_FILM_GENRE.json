@@ -1,7 +1,6 @@
 {
     "name": "ACTIVITY_VT_FILM_GENRE",
     "path": "/Configuration/Apps/VeljkoTest/NodeConfig/ACTIVITY_VT_FILM_GENRE",
-    "definitionName": "ENC_NODE_DEFINITION",
     "properties": {
         "browseButton": {
             "name": "browseButton",
@@ -286,5 +285,9 @@
     ],
     "scripts": [
         
-    ]
+    ],
+    "subnodes": {
+        
+    },
+    "definitionName": "ENC_NODE_DEFINITION"
 }
