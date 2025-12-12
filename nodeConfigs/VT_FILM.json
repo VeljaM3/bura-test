@@ -1,7 +1,6 @@
 {
     "name": "VT_FILM",
     "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM",
-    "definitionName": "ENC_NODE_DEFINITION",
     "properties": {
         "actors": {
             "name": "actors",
@@ -524,5 +523,76 @@
     ],
     "scripts": [
         
-    ]
+    ],
+    "subnodes": {
+        "image": {
+            "name": "image",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Subnodes/image",
+            "properties": {
+                
+            },
+            "dataTemplates": [
+                
+            ],
+            "scripts": [
+                
+            ],
+            "subnodes": {
+                
+            },
+            "definitionName": "ENC_SUBNODE_DEFINITION"
+        },
+        "notes": {
+            "name": "notes",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Subnodes/notes",
+            "properties": {
+                
+            },
+            "dataTemplates": [
+                
+            ],
+            "scripts": [
+                
+            ],
+            "subnodes": {
+                
+            },
+            "definitionName": "ENC_SUBNODE_DEFINITION"
+        },
+        "subGenres": {
+            "name": "subGenres",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Subnodes/subGenres",
+            "properties": {
+                
+            },
+            "dataTemplates": [
+                
+            ],
+            "scripts": [
+                
+            ],
+            "subnodes": {
+                
+            },
+            "definitionName": "ENC_SUBNODE_DEFINITION"
+        },
+        "tags": {
+            "name": "tags",
+            "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM/Subnodes/tags",
+            "properties": {
+                
+            },
+            "dataTemplates": [
+                
+            ],
+            "scripts": [
+                
+            ],
+            "subnodes": {
+                
+            },
+            "definitionName": "ENC_SUBNODE_DEFINITION"
+        }
+    },
+    "definitionName": "ENC_NODE_DEFINITION"
 }
