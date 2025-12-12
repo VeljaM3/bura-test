@@ -1,7 +1,6 @@
 {
     "name": "VT_TAG",
     "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_TAG",
-    "definitionName": "ENC_NODE_DEFINITION",
     "properties": {
         "browseButton": {
             "name": "browseButton",
@@ -286,5 +285,9 @@
     ],
     "scripts": [
         
-    ]
+    ],
+    "subnodes": {
+        
+    },
+    "definitionName": "ENC_NODE_DEFINITION"
 }
