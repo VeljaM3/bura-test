@@ -190,6 +190,12 @@ def uploadToGitHub = { githubPath, content, commitMessage ->
             def response = new groovy.json.JsonSlurper().parseText(getConnection.inputStream.text)
             existingSha = response.sha
             existingContent = response.content
+            
+            def localSha = calculateGitBlobSha(content)
+            if (localSha == existingSha) {
+                log("${githubPath} - Identical SHA, skipping")
+                return [status: "unchanged", code: 304]
+            }
         }
     } catch (Exception e) {
         log("${githubPath} - New file")
@@ -226,6 +232,17 @@ def uploadToGitHub = { githubPath, content, commitMessage ->
     }
     
     return [status: "uploaded", code: connection.responseCode]
+}
+
+// Helper: Izračunaj Git blob SHA (GitHub format)
+def calculateGitBlobSha(content) {
+    def header = "blob ${content.bytes.length}\0"
+    def store = header.bytes + content.bytes
+    
+    def digest = java.security.MessageDigest.getInstance("SHA-1")
+    def hash = digest.digest(store)
+    
+    return hash.encodeHex().toString()
 }
 
 def syncActions = { stats, reportLines ->
