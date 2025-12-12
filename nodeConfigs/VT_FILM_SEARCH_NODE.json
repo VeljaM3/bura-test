@@ -1,7 +1,6 @@
 {
     "name": "VT_FILM_SEARCH_NODE",
     "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_FILM_SEARCH_NODE",
-    "definitionName": "ENC_NODE_DEFINITION",
     "properties": {
         "browseButton": {
             "name": "browseButton",
@@ -524,5 +523,9 @@
     ],
     "scripts": [
         
-    ]
+    ],
+    "subnodes": {
+        
+    },
+    "definitionName": "ENC_NODE_DEFINITION"
 }
