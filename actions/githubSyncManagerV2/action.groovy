@@ -1,19 +1,19 @@
-// GitHub Sync Manager - Always-On Diff Detection
+// GitHub Sync Manager - WITH DISCORD NOTIFICATIONS
 
 showLogConsole()
 
 def b4cCommonConfig = appConfig.B4C_COMMON
 def GITHUB_TOKEN = b4cCommonConfig.gtVeljko
+def DISCORD_WEBHOOK = b4cCommonConfig.discordWebhook // Dodaj ovo u AppConfig!
 def GITHUB_OWNER = "VeljaM3"
 def GITHUB_REPO = "bura-test"
 def GITHUB_BRANCH = "main"
 
-// Diff detection je UVEK uključen
 def diffDetectionEnabled = true
 
 v.addHeader("h1")
 v.h1.topTitle.labelCustom("GitHub Sync Manager", [style: "h1"])
-v.h1.masterTitle.labelCustom("Smart sync sa automatskim diff detection", [style: "h4"])
+v.h1.masterTitle.labelCustom("Smart sync sa Discord notifications", [style: "h4"])
 v.h1.build()
 
 v.addSection("options")
@@ -49,8 +49,92 @@ nodeConfigsCheckbox.addValueChangeListener({ event ->
 })
 v.options.addComponent(nodeConfigsCheckbox)
 
+def sendDiscordNotification = true
+def discordCheckbox = new com.vaadin.ui.CheckBox("Send Discord notification")
+discordCheckbox.setValue(true)
+discordCheckbox.addValueChangeListener({ event ->
+    sendDiscordNotification = event.value
+})
+v.options.addComponent(discordCheckbox)
+
 v.addSection("result")
 v.result.setMargin(true)
+
+// Helper za Discord poruke
+def sendToDiscord = { reportText, stats ->
+    if (!DISCORD_WEBHOOK || !sendDiscordNotification) {
+        log("Discord notification disabled or webhook not configured")
+        return
+    }
+    
+    try {
+        // Determine embed color based on results
+        def embedColor = 3066993 // Green
+        if (stats.failCount > 0) {
+            embedColor = 15158332 // Red
+        } else if (stats.successCount == 0) {
+            embedColor = 3447003 // Blue
+        }
+        
+        def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss")
+        
+        def discordPayload = [
+            embeds: [
+                [
+                    title: "🔄 GitHub Sync Report",
+                    description: "``````",
+                    color: embedColor,
+                    fields: [
+                        [
+                            name: "✅ Uploaded",
+                            value: stats.successCount.toString(),
+                            inline: true
+                        ],
+                        [
+                            name: "⏭️ Unchanged",
+                            value: stats.unchangedCount.toString(),
+                            inline: true
+                        ],
+                        [
+                            name: "❌ Errors",
+                            value: stats.failCount.toString(),
+                            inline: true
+                        ]
+                    ],
+                    footer: [
+                        text: "Branch: ${selectedBranch}"
+                    ],
+                    timestamp: new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                ]
+            ]
+        ]
+        
+        def connection = new URL(DISCORD_WEBHOOK).openConnection()
+        connection.setRequestMethod("POST")
+        connection.setDoOutput(true)
+        connection.setRequestProperty("Content-Type", "application/json")
+        
+        connection.outputStream.withWriter { writer ->
+            writer.write(groovy.json.JsonOutput.toJson(discordPayload))
+        }
+        
+        def responseCode = connection.responseCode
+        if (responseCode in [200, 204]) {
+            log("Discord notification sent successfully")
+            v.result.labelCustom("", [])
+            v.result.labelCustom("📨 Discord notification sent!", [color: "green"])
+        } else {
+            log("Discord notification failed: HTTP ${responseCode}")
+            v.result.labelCustom("", [])
+            v.result.labelCustom("⚠️ Discord notification failed", [color: "orange"])
+        }
+        
+    } catch (Exception e) {
+        log("Error sending Discord notification: ${e.message}")
+        v.result.labelCustom("", [])
+        v.result.labelCustom("⚠️ Discord error: ${e.message}", [color: "orange"])
+    }
+}
 
 def uploadToGitHub = { githubPath, content, commitMessage ->
     def apiUrl = "https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${githubPath}"
@@ -73,7 +157,6 @@ def uploadToGitHub = { githubPath, content, commitMessage ->
         log("${githubPath} - New file")
     }
     
-    // Diff detection UVEK AKTIVAN
     if (existingContent) {
         def localBase64 = content.bytes.encodeBase64().toString().replaceAll("\\s", "")
         def remoteBase64 = existingContent.replaceAll("\\s", "")
@@ -107,7 +190,8 @@ def uploadToGitHub = { githubPath, content, commitMessage ->
     return [status: "uploaded", code: connection.responseCode]
 }
 
-def syncActions = { stats ->
+def syncActions = { stats, reportLines ->
+    reportLines << "## Syncing Actions..."
     v.result.labelCustom("## Syncing Actions...", [style: "h3", color: "blue"])
     
     def allActions = repo.find()
@@ -117,6 +201,7 @@ def syncActions = { stats ->
     
     def myActions = allActions.findAll { it.path?.contains("/VeljkoTest/") }
     
+    reportLines << "Found ${myActions.size()} actions"
     v.result.labelCustom("Found ${myActions.size()} actions", [style: "bold"])
     
     myActions.each { action ->
@@ -127,7 +212,9 @@ def syncActions = { stats ->
             def content = bo.getBinaryAsString(scriptPath)
             
             if (!content || content.trim().isEmpty()) {
-                v.result.labelCustom("⚠️ SKIP: ${actionName} - prazan sadrzaj", [color: "gray"])
+                def msg = "⚠️ SKIP: ${actionName} - prazan sadrzaj"
+                reportLines << msg
+                v.result.labelCustom(msg, [color: "gray"])
                 stats.skipCount++
                 return
             }
@@ -136,19 +223,27 @@ def syncActions = { stats ->
             def result = uploadToGitHub(githubPath, content, "Auto-sync: ${actionName}")
             
             if (result.status == "unchanged") {
-                v.result.labelCustom("⏭️ ${actionName} - No changes", [color: "blue"])
+                def msg = "⏭️ ${actionName} - No changes"
+                reportLines << msg
+                v.result.labelCustom(msg, [color: "blue"])
                 stats.unchangedCount++
             } else if (result.code in [200, 201]) {
                 def statusIcon = result.code == 201 ? "✨" : "✅"
-                v.result.labelCustom("${statusIcon} ${actionName} (${content.length()} chars)", [color: "green"])
+                def msg = "${statusIcon} ${actionName} (${content.length()} chars)"
+                reportLines << msg
+                v.result.labelCustom(msg, [color: "green"])
                 stats.successCount++
             } else {
-                v.result.labelCustom("❌ ${actionName} - HTTP ${result.code}", [color: "red"])
+                def msg = "❌ ${actionName} - HTTP ${result.code}"
+                reportLines << msg
+                v.result.labelCustom(msg, [color: "red"])
                 stats.failCount++
             }
             
         } catch (Exception e) {
-            v.result.labelCustom("❌ ${action.name} - ${e.message}", [color: "red"])
+            def msg = "❌ ${action.name} - ${e.message}"
+            reportLines << msg
+            v.result.labelCustom(msg, [color: "red"])
             stats.failCount++
         }
     }
@@ -290,7 +385,9 @@ def parseNodeStructure = { nodePath, allScripts ->
     return nodeData
 }
 
-def syncNodeConfigs = { stats ->
+def syncNodeConfigs = { stats, reportLines ->
+    reportLines << ""
+    reportLines << "## Syncing Node Configs..."
     v.result.labelCustom("", [])
     v.result.labelCustom("## Syncing Node Configs...", [style: "h3", color: "blue"])
     
@@ -315,9 +412,11 @@ def syncNodeConfigs = { stats ->
         }
         
         log("Filtered to ${nodeDefinitions.size()} direct node definitions")
+        reportLines << "Found ${nodeDefinitions.size()} node definitions"
         v.result.labelCustom("Found ${nodeDefinitions.size()} node definitions", [style: "bold"])
         
         if (nodeDefinitions.isEmpty()) {
+            reportLines << "⚠️ No node definitions found"
             v.result.labelCustom("⚠️ No node definitions found", [color: "gray"])
             return
         }
@@ -397,17 +496,24 @@ def syncNodeConfigs = { stats ->
                     }
                 }
                 
+                def msg = ""
                 if (nodeSuccessCount > 0) {
-                    v.result.labelCustom("✅ ${nodeName} - ${nodeSuccessCount} files", [color: "green"])
+                    msg = "✅ ${nodeName} - ${nodeSuccessCount} files"
+                    reportLines << msg
+                    v.result.labelCustom(msg, [color: "green"])
                     stats.successCount += nodeSuccessCount
                 }
                 if (nodeUnchangedCount > 0) {
-                    v.result.labelCustom("⏭️ ${nodeName} - ${nodeUnchangedCount} unchanged", [color: "blue"])
+                    msg = "⏭️ ${nodeName} - ${nodeUnchangedCount} unchanged"
+                    reportLines << msg
+                    v.result.labelCustom(msg, [color: "blue"])
                     stats.unchangedCount += nodeUnchangedCount
                 }
                 
             } catch (Exception e) {
-                v.result.labelCustom("❌ ${nodeDef.name} - ${e.message}", [color: "red"])
+                def msg = "❌ ${nodeDef.name} - ${e.message}"
+                reportLines << msg
+                v.result.labelCustom(msg, [color: "red"])
                 log("Error processing ${nodeDef.name}: ${e.message}")
                 e.printStackTrace()
                 stats.failCount++
@@ -415,7 +521,9 @@ def syncNodeConfigs = { stats ->
         }
         
     } catch (Exception e) {
-        v.result.labelCustom("❌ NodeConfig sync error: ${e.message}", [color: "red"])
+        def msg = "❌ NodeConfig sync error: ${e.message}"
+        reportLines << msg
+        v.result.labelCustom(msg, [color: "red"])
         log("NodeConfig sync error: ${e.message}")
         e.printStackTrace()
         stats.failCount++
@@ -424,6 +532,13 @@ def syncNodeConfigs = { stats ->
 
 def syncToGitHub = {
     v.result.clear()
+    
+    def reportLines = []
+    reportLines << "=== Sinhronizacija ==="
+    reportLines << "Branch: ${selectedBranch}"
+    reportLines << "Diff Detection: ON (auto)"
+    reportLines << ""
+    
     v.result.labelCustom("=== Sinhronizacija ===", [style: "h3"])
     v.result.labelCustom("Branch: ${selectedBranch}", [style: "bold"])
     v.result.labelCustom("Diff Detection: ON (auto)", [style: "bold", color: "green"])
@@ -438,16 +553,25 @@ def syncToGitHub = {
         ]
         
         if (syncActionsEnabled) {
-            syncActions(stats)
+            syncActions(stats, reportLines)
         } else {
+            reportLines << "⏭️ Actions sync disabled"
             v.result.labelCustom("⏭️ Actions sync disabled", [color: "gray"])
         }
         
         if (syncNodeConfigsEnabled) {
-            syncNodeConfigs(stats)
+            syncNodeConfigs(stats, reportLines)
         } else {
+            reportLines << "⏭️ NodeConfigs sync disabled"
             v.result.labelCustom("⏭️ NodeConfigs sync disabled", [color: "gray"])
         }
+        
+        reportLines << ""
+        reportLines << "=== REZULTAT ==="
+        reportLines << "✅ Uploadovano: ${stats.successCount}"
+        reportLines << "⏭️ Bez izmena: ${stats.unchangedCount}"
+        reportLines << "⚠️ Preskoceno: ${stats.skipCount}"
+        reportLines << "❌ Greske: ${stats.failCount}"
         
         v.result.labelCustom("", [])
         v.result.labelCustom("=== REZULTAT ===", [style: "h3", color: "blue"])
@@ -456,11 +580,16 @@ def syncToGitHub = {
         v.result.labelCustom("⚠️ Preskoceno: ${stats.skipCount}", [color: "gray"])
         v.result.labelCustom("❌ Greske: ${stats.failCount}", [color: "red", style: "bold"])
         
-        if (stats.successCount > 0) {
+        if (stats.successCount > 0 || stats.failCount > 0) {
             def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss")
+            reportLines << "Last sync: ${timestamp}"
             v.result.labelCustom("", [])
             v.result.labelCustom("Last sync: ${timestamp}", [color: "gray"])
         }
+        
+        // Pošalji na Discord
+        def fullReport = reportLines.join("\n")
+        sendToDiscord(fullReport, stats)
         
     } catch (Exception e) {
         v.result.labelCustom("ERROR: ${e.message}", [color: "red", style: "bold"])
