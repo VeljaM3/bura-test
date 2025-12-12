@@ -1,4 +1,4 @@
-// GitHub Sync Manager - FINAL VERSION + Error Details
+// GitHub Sync Manager
 
 showLogConsole()
 
