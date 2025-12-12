@@ -1,4 +1,4 @@
-// GitHub Sync Manager - WITH SUBNODES
+// GitHub Sync Manager - FOLDER STRUCTURE + Property Scripts
 
 showLogConsole()
 
@@ -10,7 +10,7 @@ def GITHUB_BRANCH = "main"
 
 v.addHeader("h1")
 v.h1.topTitle.labelCustom("GitHub Sync Manager - Enhanced", [style: "h1"])
-v.h1.masterTitle.labelCustom("Smart sync sa diff detection + Subnodes", [style: "h4"])
+v.h1.masterTitle.labelCustom("Smart sync with folder structure", [style: "h4"])
 v.h1.build()
 
 v.addSection("options")
@@ -158,18 +158,94 @@ def syncActions = { stats ->
     }
 }
 
-// Helper funkcija za parsiranje jednog noda (koristi se i za parent i za subnode)
-def parseNodeStructure = { nodePath ->
+// Helper funkcija za parsiranje property sa skriptama
+def parsePropertyWithScripts = { propertyPath, nodeName, allScripts ->
+    def propertyData = [
+        name: propertyPath.split("/").last(),
+        path: propertyPath,
+        scripts: [:]
+    ]
+    
+    try {
+        def propDetails = repo.get(propertyPath)
+        propertyData.definitionName = propDetails.definitionName
+        
+        // Uzmi osnovne atribute property-ja
+        if (propDetails.properties?.data) {
+            propDetails.properties.data.each { p ->
+                try {
+                    def val = propDetails[p.name]
+                    if (val != null && p.name != "scripts") {
+                        propertyData[p.name] = val.toString()
+                    }
+                } catch (Exception e) {
+                    // Skip
+                }
+            }
+        }
+    } catch (Exception e) {
+        log("  Could not get property details for ${propertyPath}")
+    }
+    
+    // Dohvati skripte za ovaj property (LOOKUP, ONCHANGE, ONCREATE, VALIDATOR)
+    def scriptTypes = ["LOOKUP", "ONCHANGE", "ONCREATE", "VALIDATOR"]
+    
+    scriptTypes.each { scriptType ->
+        try {
+            def scriptFolderPath = "${propertyPath}/Scripts/${scriptType}"
+            def scriptsInFolder = repo.find()
+                .onPath(scriptFolderPath)
+                .ofType("FILE")
+                .limit(999)
+                .execute()
+            
+            if (scriptsInFolder && !scriptsInFolder.isEmpty()) {
+                log("    Found ${scriptsInFolder.size()} ${scriptType} scripts for ${propertyData.name}")
+                
+                scriptsInFolder.each { scriptFile ->
+                    try {
+                        def scriptContent = bo.getBinaryAsString(scriptFile.path)
+                        if (scriptContent) {
+                            def scriptName = scriptFile.name
+                            
+                            // Dodaj u listu svih skripti za upload
+                            allScripts << [
+                                nodeName: nodeName,
+                                propertyName: propertyData.name,
+                                scriptType: scriptType,
+                                scriptName: scriptName,
+                                content: scriptContent
+                            ]
+                            
+                            // Dodaj referencu u property data
+                            if (!propertyData.scripts[scriptType]) {
+                                propertyData.scripts[scriptType] = []
+                            }
+                            propertyData.scripts[scriptType] << scriptName
+                        }
+                    } catch (Exception e) {
+                        log("    Could not read script ${scriptFile.name}: ${e.message}")
+                    }
+                }
+            }
+        } catch (Exception e) {
+            log("    No ${scriptType} scripts for ${propertyData.name}")
+        }
+    }
+    
+    return propertyData
+}
+
+// Helper funkcija za parsiranje node strukture
+def parseNodeStructure = { nodePath, allScripts ->
     def nodeData = [
         name: nodePath.split("/").last(),
         path: nodePath,
         properties: [:],
         dataTemplates: [],
-        scripts: [],
         subnodes: [:]
     ]
     
-    // Dohvati osnovne info o nodu
     try {
         def nodeObj = repo.get(nodePath)
         if (nodeObj) {
@@ -179,7 +255,7 @@ def parseNodeStructure = { nodePath ->
         log("Could not get node object for ${nodePath}")
     }
     
-    // Properties
+    // Properties sa skriptama
     try {
         def props = repo.find()
             .onPath("${nodePath}/Properties")
@@ -188,63 +264,24 @@ def parseNodeStructure = { nodePath ->
         
         log("  Found ${props.size()} properties")
         
-        props.each { prop ->
+        // Filtriraj samo direktne properties (ne i subfoldere)
+        def directProps = props.findAll { prop ->
+            def relativePath = prop.path.replace("${nodePath}/Properties/", "")
+            !relativePath.contains("/")
+        }
+        
+        log("  Filtered to ${directProps.size()} direct properties")
+        
+        directProps.each { prop ->
             try {
-                def propDetails = repo.get(prop.path)
-                nodeData.properties[prop.name] = [
-                    name: propDetails.name,
-                    path: propDetails.path,
-                    definitionName: propDetails.definitionName
-                ]
-                
-                if (propDetails.properties?.data) {
-                    propDetails.properties.data.each { p ->
-                        try {
-                            def val = propDetails[p.name]
-                            if (val != null) {
-                                nodeData.properties[prop.name][p.name] = val.toString()
-                            }
-                        } catch (Exception e) {
-                            // Skip
-                        }
-                    }
-                }
+                def propData = parsePropertyWithScripts(prop.path, nodeData.name, allScripts)
+                nodeData.properties[prop.name] = propData
             } catch (Exception e) {
-                log("  Could not process property ${prop.name}")
+                log("  Could not process property ${prop.name}: ${e.message}")
             }
         }
     } catch (Exception e) {
         log("  No properties for ${nodePath}")
-    }
-    
-    // Scripts
-    try {
-        def scripts = repo.find()
-            .onPath("${nodePath}/Scripts")
-            .ofType("FILE")
-            .limit(999)
-            .execute()
-        
-        log("  Found ${scripts.size()} scripts")
-        
-        scripts.each { scriptFile ->
-            try {
-                def scriptPath = scriptFile.path
-                def scriptContent = bo.getBinaryAsString(scriptPath)
-                if (scriptContent) {
-                    nodeData.scripts << [
-                        name: scriptFile.name,
-                        path: scriptFile.path,
-                        parentFolder: scriptFile.parentPath.split("/").last(),
-                        content: scriptContent
-                    ]
-                }
-            } catch (Exception e) {
-                log("  Could not read script: ${scriptFile.name}")
-            }
-        }
-    } catch (Exception e) {
-        log("  No scripts for ${nodePath}")
     }
     
     // DataTemplates
@@ -278,7 +315,6 @@ def syncNodeConfigs = { stats ->
         
         log("Found ${allNodesUnderConfig.size()} total items under NodeConfig")
         
-        // Filtriraj samo direktne child nodove
         def nodeDefinitions = allNodesUnderConfig.findAll { node ->
             def pathParts = node.path.split("/")
             def nodeConfigIndex = pathParts.findIndexOf { it == "NodeConfig" }
@@ -304,8 +340,10 @@ def syncNodeConfigs = { stats ->
                 def nodeName = nodeDef.name
                 log("Processing node config: ${nodeName}")
                 
+                def allScripts = []
+                
                 // Parsiraj osnovni node
-                def configData = parseNodeStructure(nodeDef.path)
+                def configData = parseNodeStructure(nodeDef.path, allScripts)
                 
                 // Dohvati SUBNODES
                 try {
@@ -315,9 +353,8 @@ def syncNodeConfigs = { stats ->
                         .limit(999)
                         .execute()
                     
-                    log("  Found ${subnodesList.size()} subnodes for ${nodeName}")
+                    log("  Found ${subnodesList.size()} items under Subnodes")
                     
-                    // Filtriraj samo direktne subnodove (ne i njihove subfolders)
                     def directSubnodes = subnodesList.findAll { subnode ->
                         def relativePath = subnode.path.replace("${subnodesPath}/", "")
                         !relativePath.contains("/")
@@ -330,10 +367,7 @@ def syncNodeConfigs = { stats ->
                             def subnodeName = subnode.name
                             log("    Processing subnode: ${subnodeName}")
                             
-                            // Parsiraj subnode sa istom funkcijom
-                            def subnodeData = parseNodeStructure(subnode.path)
-                            
-                            // Dodaj u parent node
+                            def subnodeData = parseNodeStructure(subnode.path, allScripts)
                             configData.subnodes[subnodeName] = subnodeData
                             
                         } catch (Exception e) {
@@ -345,26 +379,49 @@ def syncNodeConfigs = { stats ->
                     log("  No subnodes for ${nodeName}: ${e.message}")
                 }
                 
-                // Konvertuj u JSON
+                // Upload JSON metadata (bez script content)
                 def jsonContent = groovy.json.JsonOutput.prettyPrint(
                     groovy.json.JsonOutput.toJson(configData)
                 )
                 
-                def githubPath = "nodeConfigs/${nodeName}.json"
-                def result = uploadToGitHub(githubPath, jsonContent, "Auto-sync: NodeConfig ${nodeName}")
+                def jsonGithubPath = "nodeConfigs/${nodeName}/${nodeName}.json"
+                def jsonResult = uploadToGitHub(jsonGithubPath, jsonContent, "Auto-sync: NodeConfig ${nodeName} metadata")
                 
-                if (result.status == "unchanged") {
-                    v.result.labelCustom("⏭️ ${nodeName} - No changes", [color: "blue"])
-                    stats.unchangedCount++
-                } else if (result.code in [200, 201]) {
-                    def statusIcon = result.code == 201 ? "✨" : "✅"
-                    def subnodeCount = configData.subnodes.size()
-                    def subnodeInfo = subnodeCount > 0 ? " + ${subnodeCount} subnodes" : ""
-                    v.result.labelCustom("${statusIcon} ${nodeName}${subnodeInfo} (${jsonContent.length()} chars)", [color: "green"])
-                    stats.successCount++
-                } else {
-                    v.result.labelCustom("❌ ${nodeName} - HTTP ${result.code}", [color: "red"])
-                    stats.failCount++
+                def nodeSuccessCount = 0
+                def nodeUnchangedCount = 0
+                
+                if (jsonResult.status == "unchanged") {
+                    nodeUnchangedCount++
+                } else if (jsonResult.code in [200, 201]) {
+                    nodeSuccessCount++
+                }
+                
+                // Upload scripts u folder strukturu
+                log("  Uploading ${allScripts.size()} scripts for ${nodeName}")
+                
+                allScripts.each { script ->
+                    try {
+                        def scriptGithubPath = "nodeConfigs/${script.nodeName}/Scripts/${script.scriptType}/${script.propertyName}_${script.scriptName}"
+                        def scriptResult = uploadToGitHub(scriptGithubPath, script.content, "Auto-sync: ${script.nodeName} - ${script.propertyName} ${script.scriptType}")
+                        
+                        if (scriptResult.status == "unchanged") {
+                            nodeUnchangedCount++
+                        } else if (scriptResult.code in [200, 201]) {
+                            nodeSuccessCount++
+                        }
+                    } catch (Exception e) {
+                        log("  Error uploading script: ${e.message}")
+                    }
+                }
+                
+                // Display result
+                if (nodeSuccessCount > 0) {
+                    v.result.labelCustom("✅ ${nodeName} - ${nodeSuccessCount} files", [color: "green"])
+                    stats.successCount += nodeSuccessCount
+                }
+                if (nodeUnchangedCount > 0) {
+                    v.result.labelCustom("⏭️ ${nodeName} - ${nodeUnchangedCount} unchanged", [color: "blue"])
+                    stats.unchangedCount += nodeUnchangedCount
                 }
                 
             } catch (Exception e) {
