@@ -1,0 +1,14 @@
+{
+    "name": "VT_NOTE_FOLDER",
+    "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_NOTE_FOLDER",
+    "properties": {
+        
+    },
+    "dataTemplates": [
+        
+    ],
+    "subnodes": {
+        
+    },
+    "definitionName": "ENC_NODE_DEFINITION"
+}
