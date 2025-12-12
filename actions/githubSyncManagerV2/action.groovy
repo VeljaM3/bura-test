@@ -402,6 +402,7 @@ def syncNodeConfigs = { stats ->
                 allScripts.each { script ->
                     try {
                         def scriptGithubPath = "nodeConfigs/${script.nodeName}/Scripts/${script.scriptType}/${script.propertyName}_${script.scriptName}"
+
                         def scriptResult = uploadToGitHub(scriptGithubPath, script.content, "Auto-sync: ${script.nodeName} - ${script.propertyName} ${script.scriptType}")
                         
                         if (scriptResult.status == "unchanged") {
