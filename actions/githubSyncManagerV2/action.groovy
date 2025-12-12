@@ -57,10 +57,75 @@ discordCheckbox.addValueChangeListener({ event ->
 })
 v.options.addComponent(discordCheckbox)
 
+// Dodaj u options sekciju, odmah posle Discord checkbox-a
+
+def testDiscordWebhook = {
+    v.result.clear()
+    v.result.labelCustom("=== Testing Discord Webhook ===", [style: "h3"])
+    
+    if (!DISCORD_WEBHOOK) {
+        v.result.labelCustom("❌ Webhook not configured!", [color: "red"])
+        return
+    }
+    
+    v.result.labelCustom("Webhook URL: ${DISCORD_WEBHOOK.take(50)}...", [style: "bold"])
+    
+    try {
+        // Minimalan test payload
+        def testPayload = [
+            content: "🧪 **Test Message from BuraCloud**\nGitHub Sync Manager - Webhook Test"
+        ]
+        
+        def jsonPayload = groovy.json.JsonOutput.toJson(testPayload)
+        log("Test payload: ${jsonPayload}")
+        
+        def connection = new URL(DISCORD_WEBHOOK).openConnection()
+        connection.setRequestMethod("POST")
+        connection.setDoOutput(true)
+        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+        
+        connection.outputStream.withWriter("UTF-8") { writer ->
+            writer.write(jsonPayload)
+        }
+        
+        def responseCode = connection.responseCode
+        
+        if (responseCode in [200, 204]) {
+            v.result.labelCustom("✅ Test message sent successfully!", [color: "green", style: "bold"])
+            v.result.labelCustom("Check your Discord channel!", [color: "green"])
+        } else {
+            def errorText = ""
+            try {
+                errorText = connection.errorStream?.text ?: connection.inputStream?.text ?: "No error details"
+            } catch (Exception e) {
+                errorText = "Could not read response"
+            }
+            
+            v.result.labelCustom("❌ Failed with HTTP ${responseCode}", [color: "red", style: "bold"])
+            v.result.labelCustom("Error: ${errorText}", [color: "red"])
+            log("Full error: ${errorText}")
+        }
+        
+    } catch (Exception e) {
+        v.result.labelCustom("❌ Exception: ${e.message}", [color: "red", style: "bold"])
+        log("Exception details: ${e.message}")
+        e.printStackTrace()
+    }
+}
+
+// NOVI KOD (radi):
+def testButton = new com.vaadin.ui.Button("Test Discord Webhook")
+testButton.addClickListener({ event -> testDiscordWebhook() })
+v.options.addComponent(testButton)
+
+
+
 v.addSection("result")
 v.result.setMargin(true)
 
 // Helper za Discord poruke
+// FIXED Discord Integration
+
 def sendToDiscord = { reportText, stats ->
     if (!DISCORD_WEBHOOK || !sendDiscordNotification) {
         log("Discord notification disabled or webhook not configured")
@@ -68,7 +133,17 @@ def sendToDiscord = { reportText, stats ->
     }
     
     try {
-        // Determine embed color based on results
+        log("=== DISCORD DEBUG ===")
+        log("Webhook URL: ${DISCORD_WEBHOOK.take(50)}...")
+        log("Report length: ${reportText.length()} chars")
+        
+        // Skrati report ako je predugačak (Discord limit: 2000 chars u description)
+        def truncatedReport = reportText
+        if (reportText.length() > 1800) {
+            truncatedReport = reportText.take(1800) + "\n...(truncated)"
+        }
+        
+        // Determine embed color
         def embedColor = 3066993 // Green
         if (stats.failCount > 0) {
             embedColor = 15158332 // Red
@@ -76,9 +151,12 @@ def sendToDiscord = { reportText, stats ->
             embedColor = 3447003 // Blue
         }
         
-        def timestamp = new Date().format("yyyy-MM-dd HH:mm:ss")
+        def timestamp = new Date()
+        def isoTimestamp = String.format("%tFT%<tTZ", timestamp)
         
+        // Pojednostavljen payload - Discord strict validation
         def discordPayload = [
+            content: null, // Mora biti null ili string
             embeds: [
                 [
                     title: "🔄 GitHub Sync Report",
@@ -87,54 +165,78 @@ def sendToDiscord = { reportText, stats ->
                     fields: [
                         [
                             name: "✅ Uploaded",
-                            value: stats.successCount.toString(),
+                            value: "${stats.successCount}",
                             inline: true
                         ],
                         [
                             name: "⏭️ Unchanged",
-                            value: stats.unchangedCount.toString(),
+                            value: "${stats.unchangedCount}",
                             inline: true
                         ],
                         [
                             name: "❌ Errors",
-                            value: stats.failCount.toString(),
+                            value: "${stats.failCount}",
                             inline: true
                         ]
                     ],
                     footer: [
                         text: "Branch: ${selectedBranch}"
                     ],
-                    timestamp: new Date().format("yyyy-MM-dd'T'HH:mm:ss'Z'")
+                    timestamp: isoTimestamp
                 ]
             ]
         ]
         
+        def jsonPayload = groovy.json.JsonOutput.toJson(discordPayload)
+        log("Payload size: ${jsonPayload.length()} bytes")
+        log("Payload preview: ${jsonPayload.take(200)}")
+        
         def connection = new URL(DISCORD_WEBHOOK).openConnection()
         connection.setRequestMethod("POST")
         connection.setDoOutput(true)
-        connection.setRequestProperty("Content-Type", "application/json")
+        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+        connection.setRequestProperty("User-Agent", "BuraCloud-GitHub-Sync")
         
-        connection.outputStream.withWriter { writer ->
-            writer.write(groovy.json.JsonOutput.toJson(discordPayload))
+        // Zapiši payload
+        connection.outputStream.withWriter("UTF-8") { writer ->
+            writer.write(jsonPayload)
         }
         
         def responseCode = connection.responseCode
+        log("Discord response code: ${responseCode}")
+        
         if (responseCode in [200, 204]) {
             log("Discord notification sent successfully")
             v.result.labelCustom("", [])
             v.result.labelCustom("📨 Discord notification sent!", [color: "green"])
         } else {
+            // Čitaj error response
+            def errorResponse = ""
+            try {
+                if (connection.errorStream) {
+                    errorResponse = connection.errorStream.text
+                } else if (connection.inputStream) {
+                    errorResponse = connection.inputStream.text
+                }
+            } catch (Exception e) {
+                errorResponse = "Could not read error: ${e.message}"
+            }
+            
             log("Discord notification failed: HTTP ${responseCode}")
+            log("Error response: ${errorResponse}")
+            
             v.result.labelCustom("", [])
-            v.result.labelCustom("⚠️ Discord notification failed", [color: "orange"])
+            v.result.labelCustom("⚠️ Discord failed (${responseCode}): ${errorResponse.take(100)}", [color: "orange"])
         }
         
     } catch (Exception e) {
         log("Error sending Discord notification: ${e.message}")
+        e.printStackTrace()
         v.result.labelCustom("", [])
         v.result.labelCustom("⚠️ Discord error: ${e.message}", [color: "orange"])
     }
 }
+
 
 def uploadToGitHub = { githubPath, content, commitMessage ->
     def apiUrl = "https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${githubPath}"
