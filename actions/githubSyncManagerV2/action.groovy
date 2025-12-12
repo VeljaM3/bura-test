@@ -1,8 +1,7 @@
-// GitHub Sync Manager - CORRECTED NodeConfig Sync
+// GitHub Sync Manager - DEBUG NodeConfig
 
 showLogConsole()
 
-// Config
 def b4cCommonConfig = appConfig.B4C_COMMON
 def GITHUB_TOKEN = b4cCommonConfig.gtVeljko
 def GITHUB_OWNER = "VeljaM3"
@@ -14,7 +13,6 @@ v.h1.topTitle.labelCustom("GitHub Sync Manager - Enhanced", [style: "h1"])
 v.h1.masterTitle.labelCustom("Smart sync sa diff detection", [style: "h4"])
 v.h1.build()
 
-// Options sekcija
 v.addSection("options")
 v.options.setMargin(true)
 v.options.addStyle("gray")
@@ -56,11 +54,9 @@ nodeConfigsCheckbox.addValueChangeListener({ event ->
 })
 v.options.addComponent(nodeConfigsCheckbox)
 
-// Result sekcija
 v.addSection("result")
 v.result.setMargin(true)
 
-// Helper funkcija za upload na GitHub
 def uploadToGitHub = { githubPath, content, commitMessage ->
     def apiUrl = "https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/contents/${githubPath}"
     
@@ -115,7 +111,6 @@ def uploadToGitHub = { githubPath, content, commitMessage ->
     return [status: "uploaded", code: connection.responseCode]
 }
 
-// Sync Actions
 def syncActions = { stats ->
     v.result.labelCustom("## Syncing Actions...", [style: "h3", color: "blue"])
     
@@ -164,34 +159,77 @@ def syncActions = { stats ->
     }
 }
 
-// Sync NodeConfigs - FIXED VERSION
+// DEBUG VERSION
 def syncNodeConfigs = { stats ->
     v.result.labelCustom("", [])
     v.result.labelCustom("## Syncing Node Configs...", [style: "h3", color: "blue"])
     
     try {
-        // Dohvati NodeConfig folder
+        // Pokušaj 1: Direktan pristup folderu
+        log("=== ATTEMPT 1: Direct folder access ===")
         def nodeConfigFolder = repo.get("/Configuration/Apps/VeljkoTest/NodeConfig")
         
         if (!nodeConfigFolder) {
-            v.result.labelCustom("⚠️ NodeConfig folder not found", [color: "gray"])
-            return
+            v.result.labelCustom("⚠️ NodeConfig folder not found", [color: "red"])
+            log("ERROR: NodeConfig folder is null")
+        } else {
+            log("NodeConfig folder found!")
+            log("Folder name: ${nodeConfigFolder.name}")
+            log("Folder path: ${nodeConfigFolder.path}")
+            log("Folder type: ${nodeConfigFolder.definitionName}")
+            
+            // Debug subNodes
+            if (nodeConfigFolder.subNodes) {
+                log("subNodes exists: ${nodeConfigFolder.subNodes}")
+                if (nodeConfigFolder.subNodes.data) {
+                    log("subNodes.data exists, size: ${nodeConfigFolder.subNodes.data.size()}")
+                    nodeConfigFolder.subNodes.data.each { node ->
+                        log("  - Found node: ${node.name}")
+                    }
+                } else {
+                    log("subNodes.data is null or empty")
+                }
+            } else {
+                log("subNodes property does not exist")
+            }
         }
         
-        // Uzmi sve subnodove (ACTIVITY_VT_FILM_GENRE, VT_FILM, itd.)
-        def nodeDefinitions = nodeConfigFolder.subNodes?.data ?: []
+        log("")
+        log("=== ATTEMPT 2: Using repo.find ===")
         
+        // Pokušaj 2: Pronađi sve nodove direktno
+        def allNodes = repo.find()
+            .underPath("/Configuration/Apps/VeljkoTest/NodeConfig")
+            .limit(9999)
+            .execute()
+        
+        log("Found ${allNodes.size()} items under NodeConfig")
+        
+        def nodeDefinitions = allNodes.findAll { node ->
+            // Filtriraj samo direktne potomke (dubina 1)
+            def relativePath = node.path.replace("/Configuration/Apps/VeljkoTest/NodeConfig/", "")
+            def isDirectChild = !relativePath.contains("/")
+            
+            log("  Node: ${node.name}, path: ${node.path}, directChild: ${isDirectChild}")
+            
+            return isDirectChild
+        }
+        
+        log("Filtered to ${nodeDefinitions.size()} direct node definitions")
         v.result.labelCustom("Found ${nodeDefinitions.size()} node definitions", [style: "bold"])
+        
+        if (nodeDefinitions.isEmpty()) {
+            v.result.labelCustom("⚠️ No node definitions found", [color: "gray"])
+            return
+        }
         
         nodeDefinitions.each { nodeDef ->
             try {
                 def nodeName = nodeDef.name
                 log("Processing node config: ${nodeName}")
                 
-                // Dohvati pun objekat
                 def fullNodeDef = repo.get(nodeDef.path)
                 
-                // Ekstraktuj sve podatke
                 def configData = [
                     name: fullNodeDef.name,
                     path: fullNodeDef.path,
@@ -202,11 +240,16 @@ def syncNodeConfigs = { stats ->
                     subnodes: []
                 ]
                 
-                // Dohvati Properties folder
+                // Dohvati Properties
                 try {
                     def propsFolder = repo.get("${fullNodeDef.path}/Properties")
-                    if (propsFolder && propsFolder.subNodes?.data) {
-                        propsFolder.subNodes.data.each { prop ->
+                    if (propsFolder) {
+                        def props = repo.find()
+                            .underPath("${fullNodeDef.path}/Properties")
+                            .limit(999)
+                            .execute()
+                        
+                        props.each { prop ->
                             def propDetails = repo.get(prop.path)
                             configData.properties[prop.name] = [
                                 name: propDetails.name,
@@ -214,14 +257,13 @@ def syncNodeConfigs = { stats ->
                                 definitionName: propDetails.definitionName
                             ]
                             
-                            // Pokušaj dohvatiti properties od property-ja
                             try {
                                 if (propDetails.properties?.data) {
                                     propDetails.properties.data.each { p ->
                                         try {
                                             configData.properties[prop.name][p.name] = propDetails[p.name]
                                         } catch (Exception e) {
-                                            // Skip ako ne može da se pristupi
+                                            // Skip
                                         }
                                     }
                                 }
@@ -231,51 +273,36 @@ def syncNodeConfigs = { stats ->
                         }
                     }
                 } catch (Exception e) {
-                    log("No properties found for ${nodeName}")
+                    log("No properties found for ${nodeName}: ${e.message}")
                 }
                 
-                // Dohvati Scripts folder
+                // Dohvati Scripts
                 try {
-                    def scriptsFolder = repo.get("${fullNodeDef.path}/Scripts")
-                    if (scriptsFolder && scriptsFolder.subNodes?.data) {
-                        scriptsFolder.subNodes.data.each { scriptFolder ->
-                            def scriptFolderDetails = repo.get(scriptFolder.path)
-                            if (scriptFolderDetails.subNodes?.data) {
-                                scriptFolderDetails.subNodes.data.each { scriptFile ->
-                                    try {
-                                        def scriptPath = scriptFile.path
-                                        def scriptContent = bo.getBinaryAsString(scriptPath)
-                                        if (scriptContent) {
-                                            configData.scripts << [
-                                                name: scriptFile.name,
-                                                type: scriptFolder.name,
-                                                content: scriptContent
-                                            ]
-                                        }
-                                    } catch (Exception e) {
-                                        log("Could not read script: ${scriptFile.name}")
-                                    }
-                                }
+                    def scripts = repo.find()
+                        .underPath("${fullNodeDef.path}/Scripts")
+                        .ofType("FILE")
+                        .limit(999)
+                        .execute()
+                    
+                    scripts.each { scriptFile ->
+                        try {
+                            def scriptPath = scriptFile.path
+                            def scriptContent = bo.getBinaryAsString(scriptPath)
+                            if (scriptContent) {
+                                configData.scripts << [
+                                    name: scriptFile.name,
+                                    path: scriptFile.path,
+                                    content: scriptContent
+                                ]
                             }
+                        } catch (Exception e) {
+                            log("Could not read script: ${scriptFile.name}")
                         }
                     }
                 } catch (Exception e) {
-                    log("No scripts found for ${nodeName}")
+                    log("No scripts found for ${nodeName}: ${e.message}")
                 }
                 
-                // Dohvati DataTemplates
-                try {
-                    def dataTemplatesFolder = repo.get("${fullNodeDef.path}/DataTemplates")
-                    if (dataTemplatesFolder && dataTemplatesFolder.subNodes?.data) {
-                        dataTemplatesFolder.subNodes.data.each { template ->
-                            configData.dataTemplates << template.name
-                        }
-                    }
-                } catch (Exception e) {
-                    log("No data templates found for ${nodeName}")
-                }
-                
-                // Konvertuj u JSON
                 def jsonContent = groovy.json.JsonOutput.prettyPrint(
                     groovy.json.JsonOutput.toJson(configData)
                 )
@@ -310,7 +337,6 @@ def syncNodeConfigs = { stats ->
     }
 }
 
-// Main sync funkcija
 def syncToGitHub = {
     v.result.clear()
     v.result.labelCustom("=== Sinhronizacija ===", [style: "h3"])
