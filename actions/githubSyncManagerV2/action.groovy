@@ -57,74 +57,10 @@ discordCheckbox.addValueChangeListener({ event ->
 })
 v.options.addComponent(discordCheckbox)
 
-// Dodaj u options sekciju, odmah posle Discord checkbox-a
-
-def testDiscordWebhook = {
-    v.result.clear()
-    v.result.labelCustom("=== Testing Discord Webhook ===", [style: "h3"])
-    
-    if (!DISCORD_WEBHOOK) {
-        v.result.labelCustom("❌ Webhook not configured!", [color: "red"])
-        return
-    }
-    
-    v.result.labelCustom("Webhook URL: ${DISCORD_WEBHOOK.take(50)}...", [style: "bold"])
-    
-    try {
-        // Minimalan test payload
-        def testPayload = [
-            content: "🧪 **Test Message from BuraCloud**\nGitHub Sync Manager - Webhook Test"
-        ]
-        
-        def jsonPayload = groovy.json.JsonOutput.toJson(testPayload)
-        log("Test payload: ${jsonPayload}")
-        
-        def connection = new URL(DISCORD_WEBHOOK).openConnection()
-        connection.setRequestMethod("POST")
-        connection.setDoOutput(true)
-        connection.setRequestProperty("Content-Type", "application/json; charset=UTF-8")
-        
-        connection.outputStream.withWriter("UTF-8") { writer ->
-            writer.write(jsonPayload)
-        }
-        
-        def responseCode = connection.responseCode
-        
-        if (responseCode in [200, 204]) {
-            v.result.labelCustom("✅ Test message sent successfully!", [color: "green", style: "bold"])
-            v.result.labelCustom("Check your Discord channel!", [color: "green"])
-        } else {
-            def errorText = ""
-            try {
-                errorText = connection.errorStream?.text ?: connection.inputStream?.text ?: "No error details"
-            } catch (Exception e) {
-                errorText = "Could not read response"
-            }
-            
-            v.result.labelCustom("❌ Failed with HTTP ${responseCode}", [color: "red", style: "bold"])
-            v.result.labelCustom("Error: ${errorText}", [color: "red"])
-            log("Full error: ${errorText}")
-        }
-        
-    } catch (Exception e) {
-        v.result.labelCustom("❌ Exception: ${e.message}", [color: "red", style: "bold"])
-        log("Exception details: ${e.message}")
-        e.printStackTrace()
-    }
-}
-
-// NOVI KOD (radi):
-def testButton = new com.vaadin.ui.Button("Test Discord Webhook")
-testButton.addClickListener({ event -> testDiscordWebhook() })
-v.options.addComponent(testButton)
-
-
-
 v.addSection("result")
 v.result.setMargin(true)
 
 // Helper za Discord poruke
-// FIXED Discord Integration
 
 def sendToDiscord = { reportText, stats ->
     if (!DISCORD_WEBHOOK || !sendDiscordNotification) {
