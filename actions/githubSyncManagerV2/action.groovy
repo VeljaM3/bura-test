@@ -1,4 +1,4 @@
-// GitHub Sync Manager - DEBUG NodeConfig
+// GitHub Sync Manager - FIXED NodeConfig Access
 
 showLogConsole()
 
@@ -126,7 +126,6 @@ def syncActions = { stats ->
     myActions.each { action ->
         try {
             def actionName = action.name
-            log("Processing action: ${actionName}")
             
             def scriptPath = "${action.path}/Scripts/action.groovy"
             def content = bo.getBinaryAsString(scriptPath)
@@ -159,58 +158,30 @@ def syncActions = { stats ->
     }
 }
 
-// DEBUG VERSION
 def syncNodeConfigs = { stats ->
     v.result.labelCustom("", [])
     v.result.labelCustom("## Syncing Node Configs...", [style: "h3", color: "blue"])
     
     try {
-        // Pokušaj 1: Direktan pristup folderu
-        log("=== ATTEMPT 1: Direct folder access ===")
-        def nodeConfigFolder = repo.get("/Configuration/Apps/VeljkoTest/NodeConfig")
-        
-        if (!nodeConfigFolder) {
-            v.result.labelCustom("⚠️ NodeConfig folder not found", [color: "red"])
-            log("ERROR: NodeConfig folder is null")
-        } else {
-            log("NodeConfig folder found!")
-            log("Folder name: ${nodeConfigFolder.name}")
-            log("Folder path: ${nodeConfigFolder.path}")
-            log("Folder type: ${nodeConfigFolder.definitionName}")
-            
-            // Debug subNodes
-            if (nodeConfigFolder.subNodes) {
-                log("subNodes exists: ${nodeConfigFolder.subNodes}")
-                if (nodeConfigFolder.subNodes.data) {
-                    log("subNodes.data exists, size: ${nodeConfigFolder.subNodes.data.size()}")
-                    nodeConfigFolder.subNodes.data.each { node ->
-                        log("  - Found node: ${node.name}")
-                    }
-                } else {
-                    log("subNodes.data is null or empty")
-                }
-            } else {
-                log("subNodes property does not exist")
-            }
-        }
-        
-        log("")
-        log("=== ATTEMPT 2: Using repo.find ===")
-        
-        // Pokušaj 2: Pronađi sve nodove direktno
-        def allNodes = repo.find()
-            .underPath("/Configuration/Apps/VeljkoTest/NodeConfig")
+        // ISPRAVKA: Koristimo onPath() umesto underPath()
+        def allNodesUnderConfig = repo.find()
+            .onPath("/Configuration/Apps/VeljkoTest/NodeConfig")
             .limit(9999)
             .execute()
         
-        log("Found ${allNodes.size()} items under NodeConfig")
+        log("Found ${allNodesUnderConfig.size()} total items under NodeConfig")
         
-        def nodeDefinitions = allNodes.findAll { node ->
-            // Filtriraj samo direktne potomke (dubina 1)
-            def relativePath = node.path.replace("/Configuration/Apps/VeljkoTest/NodeConfig/", "")
-            def isDirectChild = !relativePath.contains("/")
+        // Filtriraj samo direktne child nodove (dubina 1 nivo)
+        def nodeDefinitions = allNodesUnderConfig.findAll { node ->
+            def pathParts = node.path.split("/")
+            def nodeConfigIndex = pathParts.findIndexOf { it == "NodeConfig" }
             
-            log("  Node: ${node.name}, path: ${node.path}, directChild: ${isDirectChild}")
+            // Proverava da li je node direktno ispod NodeConfig (NodeConfig/IME_NODA)
+            def isDirectChild = (nodeConfigIndex >= 0 && pathParts.size() == nodeConfigIndex + 2)
+            
+            if (isDirectChild) {
+                log("Direct child found: ${node.name} at ${node.path}")
+            }
             
             return isDirectChild
         }
@@ -228,28 +199,26 @@ def syncNodeConfigs = { stats ->
                 def nodeName = nodeDef.name
                 log("Processing node config: ${nodeName}")
                 
-                def fullNodeDef = repo.get(nodeDef.path)
-                
                 def configData = [
-                    name: fullNodeDef.name,
-                    path: fullNodeDef.path,
-                    definitionName: fullNodeDef.definitionName,
+                    name: nodeName,
+                    path: nodeDef.path,
+                    definitionName: nodeDef.definitionName,
                     properties: [:],
                     dataTemplates: [],
-                    scripts: [],
-                    subnodes: []
+                    scripts: []
                 ]
                 
                 // Dohvati Properties
                 try {
-                    def propsFolder = repo.get("${fullNodeDef.path}/Properties")
-                    if (propsFolder) {
-                        def props = repo.find()
-                            .underPath("${fullNodeDef.path}/Properties")
-                            .limit(999)
-                            .execute()
-                        
-                        props.each { prop ->
+                    def props = repo.find()
+                        .onPath("${nodeDef.path}/Properties")
+                        .limit(999)
+                        .execute()
+                    
+                    log("Found ${props.size()} properties for ${nodeName}")
+                    
+                    props.each { prop ->
+                        try {
                             def propDetails = repo.get(prop.path)
                             configData.properties[prop.name] = [
                                 name: propDetails.name,
@@ -257,32 +226,36 @@ def syncNodeConfigs = { stats ->
                                 definitionName: propDetails.definitionName
                             ]
                             
-                            try {
-                                if (propDetails.properties?.data) {
-                                    propDetails.properties.data.each { p ->
-                                        try {
-                                            configData.properties[prop.name][p.name] = propDetails[p.name]
-                                        } catch (Exception e) {
-                                            // Skip
+                            // Pokušaj izvući i child properties/attributes
+                            if (propDetails.properties?.data) {
+                                propDetails.properties.data.each { p ->
+                                    try {
+                                        def val = propDetails[p.name]
+                                        if (val != null) {
+                                            configData.properties[prop.name][p.name] = val.toString()
                                         }
+                                    } catch (Exception e) {
+                                        // Skip
                                     }
                                 }
-                            } catch (Exception e) {
-                                log("Could not extract properties for ${prop.name}")
                             }
+                        } catch (Exception e) {
+                            log("Could not process property ${prop.name}: ${e.message}")
                         }
                     }
                 } catch (Exception e) {
-                    log("No properties found for ${nodeName}: ${e.message}")
+                    log("No properties folder for ${nodeName}: ${e.message}")
                 }
                 
                 // Dohvati Scripts
                 try {
                     def scripts = repo.find()
-                        .underPath("${fullNodeDef.path}/Scripts")
+                        .onPath("${nodeDef.path}/Scripts")
                         .ofType("FILE")
                         .limit(999)
                         .execute()
+                    
+                    log("Found ${scripts.size()} scripts for ${nodeName}")
                     
                     scripts.each { scriptFile ->
                         try {
@@ -292,15 +265,32 @@ def syncNodeConfigs = { stats ->
                                 configData.scripts << [
                                     name: scriptFile.name,
                                     path: scriptFile.path,
+                                    parentFolder: scriptFile.parentPath.split("/").last(),
                                     content: scriptContent
                                 ]
                             }
                         } catch (Exception e) {
-                            log("Could not read script: ${scriptFile.name}")
+                            log("Could not read script: ${scriptFile.name} - ${e.message}")
                         }
                     }
                 } catch (Exception e) {
-                    log("No scripts found for ${nodeName}: ${e.message}")
+                    log("No scripts folder for ${nodeName}: ${e.message}")
+                }
+                
+                // Dohvati DataTemplates
+                try {
+                    def templates = repo.find()
+                        .onPath("${nodeDef.path}/DataTemplates")
+                        .limit(999)
+                        .execute()
+                    
+                    log("Found ${templates.size()} data templates for ${nodeName}")
+                    
+                    templates.each { template ->
+                        configData.dataTemplates << template.name
+                    }
+                } catch (Exception e) {
+                    log("No data templates for ${nodeName}: ${e.message}")
                 }
                 
                 def jsonContent = groovy.json.JsonOutput.prettyPrint(
@@ -324,7 +314,7 @@ def syncNodeConfigs = { stats ->
                 
             } catch (Exception e) {
                 v.result.labelCustom("❌ ${nodeDef.name} - ${e.message}", [color: "red"])
-                log("Error: ${e.message}")
+                log("Error processing ${nodeDef.name}: ${e.message}")
                 e.printStackTrace()
                 stats.failCount++
             }
@@ -332,6 +322,7 @@ def syncNodeConfigs = { stats ->
         
     } catch (Exception e) {
         v.result.labelCustom("❌ NodeConfig sync error: ${e.message}", [color: "red"])
+        log("NodeConfig sync error: ${e.message}")
         e.printStackTrace()
         stats.failCount++
     }
