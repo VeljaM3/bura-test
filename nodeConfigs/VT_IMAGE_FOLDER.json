@@ -1,7 +1,6 @@
 {
     "name": "VT_IMAGE_FOLDER",
     "path": "/Configuration/Apps/VeljkoTest/NodeConfig/VT_IMAGE_FOLDER",
-    "definitionName": "ENC_NODE_DEFINITION",
     "properties": {
         
     },
@@ -10,5 +9,9 @@
     ],
     "scripts": [
         
-    ]
+    ],
+    "subnodes": {
+        
+    },
+    "definitionName": "ENC_NODE_DEFINITION"
 }
